@@ -1,10 +1,267 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <title>A Thumb</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Black+Han+Sans:400" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            display: inline-block;
+            vertical-align: middle;
+            color: white;
+            margin: 0.5rem;
+            padding: 0;
+        }
+
+        nav {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin: .25rem;
+            padding: .5rem 1rem;
+            text-decoration: underline;
+            font-weight: bold;
+            color: white;
+            background: black;
+        }
+
+        a:hover {
+            background: white;
+            color: black;
+        }
+        body {
+            background: black;
+        }
+        .mytitle {
+            width: 100%;
+            height: 300px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/7QaW/image/kN1qs4ahiI308fuDyMUcxXQYwvY.jpg');
+            background-position: center;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mytitle > button {
+            width: 200px;
+            height: 50px;
+
+            background-color: transparent;
+            color: white;
+
+            border-radius: 50px;
+            border: 1px solid white;
+
+            margin-top: 10px;
+        }
+
+        .mytitle > button:hover {
+            border: 2px solid white;
+        }
+
+        .mycomment {
+            color: gray;
+        }
+
+        .mycards {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 1200px;
+        }
+
+        .mypost {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px gray;
+
+            display: none;
+        }
+
+        .mybtns {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 20px;
+        }
+
+        .mybtns > button {
+            margin-right: 10px;
+        }
+
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            listing();
+        });
+
+        function listing() {
+            $.ajax({
+                type: 'GET',
+                url: '/movie',
+                data: {},
+                success: function (response) {
+                    let rows = response['movies']
+                    for (let i = 0; i < rows.length; i++) {
+                        let comment = rows[i]['comment']
+                        let title = rows[i]['title']
+                        let desc = rows[i]['desc']
+                        let image = rows[i]['image']
+                        let star = rows[i]['star']
+
+                        let star_image = '⭐'.repeat(star)
+
+                        let temp_html = `<div class="col">
+                                            <div class="card h-100">
+                                                <img src="${image}"
+                                                     class="card-img-top">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${title}</h5>
+                                                    <p class="card-text">${desc}</p>
+                                                    <p>${star_image}</p>
+                                                    <p class="mycomment">${comment}</p>
+                                                </div>
+                                            </div>
+                                        </div>`
+                        $('#cards-box').append(temp_html)
+                    }
+
+                    console.log(response['movies'])
+                }
+            })
+        }
+
+        function posting() {
+            let url = $('#url').val()
+            let star = $('#star').val()
+            let comment = $('#comment').val()
+
+            $.ajax({
+                type: 'POST',
+                url: '/movie',
+                data: {url_give:url, star_give:star, comment_give:comment},
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.reload()
+                }
+            });
+        }
+
+        function logout(){
+        $.removeCookie('mytoken');
+        alert('로그아웃 되었습니다!')
+        }
+
+    </script>
 </head>
+
+<header>
+    <h1 style="font-style: italic;
+        font-family: 'Black Han Sans', sans-serif;">
+        어떰b
+    </h1>
+    <nav>
+        {% if  %}
+        <ul>
+            <li onclick="location.href='login_hj.html'"><a href="#">로그인</a></li>
+            <li onclick="location.href='register_hj.html'"><a href="#">회원가입</a></li>
+        </ul>
+        {% else %}
+            <li onclick="location.href='post.html'"><a href="#">글 작성</a></li>
+            <li onclick="location.href='login_hj.html'"><a href="#">로그아웃</a></li>
+        {% endif %}
+
+        <ul>
+            <li onclick="location.href='login_hj.html'"><a href="#">로그인</a></li>
+            <li onclick="location.href='register_hj.html'"><a href="#">회원가입</a></li>
+        </ul>
+    </nav>
+</header>
+
 <body>
-$END$
+<!--<button type="button" class="btn btn-dark" onclick="location.href='post.html'">글 작성</button>-->
+<div class="mytitle">
+    <span
+        style="
+            font-style: italic;
+            font-size: 80px;
+            font-family: 'Black Han Sans', sans-serif;">
+            A Thumb
+    </span>
+</div>
+<div class="mypost" id="post-box">
+    <div class="form-floating mb-3">
+        <input id="url" type="email" class="form-control" placeholder="name@example.com">
+        <label>영화URL</label>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupSelect01">별점</label>
+        <select class="form-select" id="star">
+            <option selected>-- 선택하기 --</option>
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+    </div>
+    <div class="form-floating">
+        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+        <label for="floatingTextarea2">코멘트</label>
+    </div>
+    <div class="mybtns">
+        <button onclick="posting()" type="button" class="btn btn-dark">등록하기</button>
+        <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
+    </div>
+</div>
+<div class="mycards">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+    </div>
+</div>
 </body>
+
 </html>
