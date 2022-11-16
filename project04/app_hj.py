@@ -60,6 +60,29 @@ def post():
     user_info = db.athumb.find_one({"id": payload['id']})
     return render_template('post_hj.html', nickname=user_info["nickname"])
 
+@app.route('/comment')
+def comment():
+    token_receive = request.cookies.get('mytoken')
+
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.athumb.find_one({"id": payload['id']})
+    return render_template('like_hj.html', nickname=user_info["nickname"])
+
+@app.route('/api/comment', methods=['POST'] )
+def save_comment():
+    nickname_receive = request.form['nickname_give']
+    comment_give = request.form['comment_give']
+    print(nickname_receive)
+    print(comment_give)
+    doc = {
+        'nickname' : nickname_receive,
+        'comment' : comment_give
+    }
+
+    db.athumb_comment.insert_one(doc)
+
+    return jsonify({'msg' : '댓글이 등록되었습니다'})
+
 
 #################################
 ##  로그인을 위한 API            ##
