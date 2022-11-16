@@ -12,12 +12,17 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def home():
+def main():
     return render_template('main.html')
 
+@app.route('/post')
+def post():
+    return render_template('post.html')
 
-@app.route("/fashion", methods=["POST"])
-def fashion_post():
+
+
+@app.route("/post", methods=["POST"])
+def posting():
     image_receive = request.form['image_give']
     brand_receive = request.form['brand_give']
     option_receive = request.form['option_give']
@@ -34,15 +39,15 @@ def fashion_post():
         'url':url_receive,
         'comment':comment_receive
     }
-    db.movies.insert_one(doc)
+    db.athumb.insert_one(doc)
 
     return jsonify({'msg': '작성 완료!'})
 
 
-@app.route("/movie", methods=["GET"])
-def fashion_get():
-    fashion_list = list(db.movies.find({}, {'_id': False}))
-    return jsonify({'fashion':fashion_list})
+@app.route('/', methods=["GET"])
+def post_get():
+    post_list = list(db.athumb.find({}, {'_id': False}))
+    return jsonify({'post_list':post_list})
 
 
 if __name__ == '__main__':

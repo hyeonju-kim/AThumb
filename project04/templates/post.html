@@ -68,6 +68,27 @@
             margin-right: 10px;
         }
     </style>
+    <script>
+        function posting() {
+            let image = $('#image').val()
+            let brand = $('#brand').val()
+            let option = $('#option').val()
+            let title = $('#title').val()
+            let star = $('#star').val()
+            let url = $('#url').val()
+            let comment = $('#comment').val()
+
+            $.ajax({
+                type: 'POST',
+                url: '/post',
+                data: {image_give:image, brand_give:brand, option_give:option, title_give:title, star_give:star, url_give:url, comment_give:comment},
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.href='/'
+                }
+            });
+        }
+    </script>
 
 <body>
 <div class="mytitle">
@@ -82,7 +103,7 @@
 <div class="mypost" id="post-box">
     <div class="mb-3">
         <label for="formFile" class="form-label">&nbsp;상품 이미지</label>
-        <input class="form-control" type="file" id="formFile" accept="image/*">
+        <input class="form-control" type="file" id="image" accept="image/*">
     </div>
     <div class="input-group mb-3">
         <label class="input-group-text" for="inputGroupSelect01">브랜드</label>
@@ -103,7 +124,7 @@
         </select>
     </div>
     <div class="form-floating">
-        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+        <textarea id="title" class="form-control" placeholder="Leave a comment here"></textarea>
         <label for="floatingTextarea2">상품명</label>
     </div>
     <div class="input-group mb-3">
@@ -126,8 +147,8 @@
         <label for="floatingTextarea2">코멘트</label>
     </div>
     <div class="mybtns">
-        <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
-        <button onclick="location.href='main.html'" type="button" class="btn btn-dark">닫기</button>
+        <button onclick="posting()" type="button" class="btn btn-dark">작성하기</button>
+        <button onclick="location.href='/'" type="button" class="btn btn-dark">닫기</button>
     </div>
 </div>
 <!--div class="mycards">
