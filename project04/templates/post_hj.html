@@ -54,75 +54,36 @@
             margin: 12px;
         }
 
-        a {
-            display: block;
-            text-align: center;
-            margin: .25rem;
-            padding: .5rem 1rem;
-            text-decoration: underline;
-            font-weight: bold;
-            color: white;
-            background: black;
-        }
-
-        a:hover {
-            background: white;
-            color: black;
-        }
         body {
             background: black;
         }
+
+        .form-label {
+            color: white;
+        }
+
         .mytitle {
+            font-family: 'Black Han Sans', sans-serif;
             width: 100%;
             height: 300px;
 
-            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/7QaW/image/kN1qs4ahiI308fuDyMUcxXQYwvY.jpg');
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/7QaW/image/kN1qs4ahiI308fuDyMUcxXQYwvY.jpg');
             background-position: center;
             background-size: cover;
 
             color: white;
-
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        .mytitle > button {
-            width: 200px;
-            height: 50px;
-
-            background-color: transparent;
-            color: white;
-
-            border-radius: 50px;
-            border: 1px solid white;
-
-            margin-top: 10px;
-        }
-
-        .mytitle > button:hover {
-            border: 2px solid white;
-        }
-
-        .mycomment {
-            color: gray;
-        }
-
-        .mycards {
-            margin: 20px auto 0px auto;
-            width: 95%;
-            max-width: 1200px;
-        }
-
         .mypost {
             width: 95%;
             max-width: 500px;
-            margin: 20px auto 0px auto;
-            padding: 20px;
-            box-shadow: 0px 0px 3px 0px gray;
-
-            display: none;
+            margin: 50px auto 0px auto;
+            padding: 30px;
+            box-shadow: 0px 0px 20px 5px gray;
         }
 
         .mybtns {
@@ -130,7 +91,6 @@
             flex-direction: row;
             align-items: center;
             justify-content: center;
-
             margin-top: 20px;
         }
 
@@ -138,17 +98,7 @@
             margin-right: 10px;
         }
 
-
     </style>
-    <script>
-        function logout(){
-        $.removeCookie('mytoken');
-        alert('로그아웃 되었습니다!')
-        }
-
-    </script>
-</head>
-
 <header>
     <h1 style="font-style: italic;
         font-family: 'Black Han Sans', sans-serif;">
@@ -156,22 +106,14 @@
     </h1>
     <nav>
         <ul>
-        {% if nickname %}
-            <li class="nick">{{ nickname }}님 안녕하세요!</li>
-            <li><a href="/post">글 작성</a></li>
-            <li><a href="/" onclick="logout()"> 로그아웃</a></li>
-
-        {% else %}
-            <li><a href="/login">로그인</a></li>
-            <li><a href="/register">회원가입</a></li>
-        {% endif %}
+            {% if nickname %}
+                <li class="nick">{{ nickname }}님 안녕하세요!</li>
+            {% endif %}
         </ul>
 
     </nav>
 </header>
-
 <body>
-<!--<button type="button" class="btn btn-dark" onclick="location.href='post.html'">글 작성</button>-->
 <div class="mytitle">
     <span
         style="
@@ -181,7 +123,57 @@
             A Thumb
     </span>
 </div>
-
+<div class="mypost" id="post-box">
+    <div class="mb-3">
+        <label for="formFile" class="form-label">&nbsp;상품 이미지</label>
+        <input class="form-control" type="file" id="formFile" accept="image/*">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupSelect01">브랜드</label>
+        <select class="form-select" id="brand">
+            <option selected>-- 선택 --</option>
+            <option value="1">Nike</option>
+            <option value="2">Addidas</option>
+            <option value="3">Fila</option>
+        </select>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupSelect01">옵션</label>
+        <select class="form-select" id="option">
+            <option selected>-- 선택 --</option>
+            <option value="1">상의</option>
+            <option value="2">하의</option>
+            <option value="3">신발</option>
+        </select>
+    </div>
+    <div class="form-floating">
+        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+        <label for="floatingTextarea2">상품명</label>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupSelect01">별점</label>
+        <select class="form-select" id="star">
+            <option selected>-- 선택 --</option>
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+    </div>
+    <div class="form-floating mb-3">
+        <input id="url" type="email" class="form-control" placeholder="name@example.com">
+        <label>구매Link</label>
+    </div>
+    <div class="form-floating">
+        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+        <label for="floatingTextarea2">코멘트</label>
+    </div>
+    <div class="mybtns">
+        <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
+        <button onclick="location.href='main.html'" type="button" class="btn btn-dark">닫기</button>
+    </div>
+</div>
 <div class="mycards">
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
     </div>
