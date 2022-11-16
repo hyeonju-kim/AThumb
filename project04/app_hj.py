@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -30,17 +30,35 @@ import hashlib
 #################################
 @app.route('/')
 def home():
-    return render_template('main_hj.html')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.athumb.find_one({"id": payload['id']})
+        return render_template('main_hj.html', nickname =user_info["nickname"])
+
+    except jwt.ExpiredSignatureError:
+        return render_template('main_hj.html')
+    except jwt.exceptions.DecodeError:
+        return render_template('main_hj.html')
+
+
 
 @app.route('/login')
 def login():
     msg = request.args.get("msg")
-    return render_template('main_hj.html', msg=msg)
-
+    return render_template('login_hj.html', msg=msg)
 
 @app.route('/register')
 def register():
     return render_template('register_hj.html')
+
+@app.route('/post')
+def post():
+    token_receive = request.cookies.get('mytoken')
+
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.athumb.find_one({"id": payload['id']})
+    return render_template('post_hj.html', nickname=user_info["nickname"])
 
 
 #################################
@@ -66,7 +84,7 @@ def api_register():
         return jsonify({'result': 'success'})
 
     else :
-        return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
+        return jsonify({'result': 'fail', 'msg': '비밀번호가 일치하지 않습니다.'})
 
 
 
@@ -82,7 +100,7 @@ def api_login():
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
     # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
-    result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
+    result = db.athumb.find_one({'id': id_receive, 'pw': pw_hash})
 
     # 찾으면 JWT 토큰을 만들어 발급합니다.
     if result is not None:
@@ -118,7 +136,6 @@ def api_valid():
         # token을 시크릿키로 디코딩합니다.
         # 보실 수 있도록 payload를 print 해두었습니다. 우리가 로그인 시 넣은 그 payload와 같은 것이 나옵니다.
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        print(payload)
 
         # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
         # 여기에선 그 예로 닉네임을 보내주겠습니다.
