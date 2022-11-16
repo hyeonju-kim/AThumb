@@ -13,30 +13,25 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('main.html')
 
 
-@app.route("/movie", methods=["POST"])
-def movie_post():
-    url_receive = request.form['url_give']
+@app.route("/fashion", methods=["POST"])
+def fashion_post():
+    image_receive = request.form['image_give']
+    brand_receive = request.form['brand_give']
+    option_receive = request.form['option_give']
+    title_receive = request.form['title_give']
     star_receive = request.form['star_give']
+    url_receive = request.form['url_give']
     comment_receive = request.form['comment_give']
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-    data = requests.get(url_receive, headers=headers)
-
-    soup = BeautifulSoup(data.text, 'html.parser')
-
-    title = soup.select_one('meta[property="og:title"]')['content']
-    image = soup.select_one('meta[property="og:image"]')['content']
-    desc = soup.select_one('meta[property="og:description"]')['content']
-
     doc = {
-        'title':title,
-        'image':image,
-        'desc':desc,
+        'image':image_receive,
+        'brand':brand_receive,
+        'option':option_receive,
+        'title':title_receive,
         'star':star_receive,
+        'url':url_receive,
         'comment':comment_receive
     }
     db.movies.insert_one(doc)
@@ -45,10 +40,10 @@ def movie_post():
 
 
 @app.route("/movie", methods=["GET"])
-def movie_get():
-    movie_list = list(db.movies.find({}, {'_id': False}))
-    return jsonify({'movies':movie_list})
+def fashion_get():
+    fashion_list = list(db.movies.find({}, {'_id': False}))
+    return jsonify({'fashion':fashion_list})
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', port=5001, debug=True)
+    app.run('0.0.0.0', port=5003, debug=True)

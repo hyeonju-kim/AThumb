@@ -142,10 +142,10 @@
         function listing() {
             $.ajax({
                 type: 'GET',
-                url: '/movie',
+                url: '/fashion',
                 data: {},
                 success: function (response) {
-                    let rows = response['movies']
+                    let rows = response['fashion']
                     for (let i = 0; i < rows.length; i++) {
                         let comment = rows[i]['comment']
                         let title = rows[i]['title']
@@ -170,7 +170,7 @@
                         $('#cards-box').append(temp_html)
                     }
 
-                    console.log(response['movies'])
+                    console.log(response['fashion'])
                 }
             })
         }
@@ -182,7 +182,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: '/movie',
+                url: '/fashion',
                 data: {url_give:url, star_give:star, comment_give:comment},
                 success: function (response) {
                     alert(response['msg'])
