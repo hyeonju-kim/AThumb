@@ -167,21 +167,19 @@ if __name__ == '__main__':
     ################################# 코멘트 #################################
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('main.html')
 
 
 @app.route("/mars", methods=["POST"])
 def web_mars_post():
-    name_receive = request.form['name_give']
-    address_receive = request.form['address_give']
-    size_receive = request.form['size_give']
-    price_receive = request.form['price_give']
+    nickname_receive = request.form['name_give']
+    comment_receive = request.form['address_give']
+
 
     doc = {
-        'name': name_receive,
-        'address': address_receive,
-        'size': size_receive,
-        'price': price_receive
+        'nickname': nickname_receive,
+        'comment': comment_receive,
+
 
     }
     db.mars.insert_one(doc)
