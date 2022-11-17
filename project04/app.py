@@ -8,11 +8,7 @@ import certifi
 ca=certifi.where()
 
 client = MongoClient("mongodb+srv://coy:sparta@cluster0.apdwkr3.mongodb.net/Cluster0?retryWrites=true&w=majority", tlsCAFile=ca)
-<<<<<<< HEAD
 db = client.dbsparta
-=======
-db = client.sparta
->>>>>>> 1e9c70265c7876841bd327ec74c450a48bc771dd
 
 # JWT 토큰을 만들 때 필요한 비밀문자열입니다. 아무거나 입력해도 괜찮습니다.
 # 이 문자열은 서버만 알고있기 때문에, 내 서버에서만 토큰을 인코딩(=만들기)/디코딩(=풀기) 할 수 있습니다.
@@ -137,69 +133,4 @@ def api_valid():
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     app.run('0.0.0.0', port=5005, debug=True)
-=======
-    app.run('0.0.0.0', port=5005, debug=True)
-
-################################# 좋아요 #################################
-
-    @app.route('/api/list', methods=['GET'])
-    def show_stars():
-        movie_stars = list(db.mystar.find({}, {'_id': False}).sort('like', -1))
-        return jsonify({'my_stars': movie_stars})
-
-
-    @app.route('/api/like', methods=['POST'])
-    def like_star():
-        name_receive = request.form['name_give']
-        target_star = db.mystar.find_one({'name': name_receive})
-        current_like = target_star['like']
-
-        new_like = current_like + 1
-
-        db.mystar.update_one({'name': name_receive}, {'$set': {'like': new_like}})
-
-        return jsonify({'msg': '좋아요 완료!'})
-
-
-    @app.route('/api/delete', methods=['POST'])
-    def delete_star():
-        delete_receive = request.form['delete_give']
-
-        db.mystar.delete_one({'name': delete_receive})
-
-        return jsonify({'msg': 'delete 연결되었습니다!'})
-    #########################################################################
-    ################################# 코멘트 #################################
-@app.route('/')
-def home():
-    return render_template('main.html')
-
-
-@app.route("/mars", methods=["POST"])
-def web_mars_post():
-    nickname_receive = request.form['name_give']
-    comment_receive = request.form['address_give']
-
-
-    doc = {
-        'nickname': nickname_receive,
-        'comment': comment_receive,
-
-
-    }
-    db.mars.insert_one(doc)
-
-    return jsonify({'msg': '주문 완료!'})
-
-
-@app.route("/mars", methods=["GET"])
-def web_mars_get():
-    order_list = list(db.mars.find({}, {'_id': False}))
-    return jsonify({'orders':order_list})
-
-
-if __name__ == '__main__':
-    app.run('0.0.0.0', port=5000, debug=True)
->>>>>>> 1e9c70265c7876841bd327ec74c450a48bc771dd
