@@ -53,6 +53,34 @@
         }
     </style>
     <script>
+         $(document).ready(function () {
+            show_comment();
+        });
+        function show_comment() {
+
+            let nickname = $('#nickname').val()
+            let comment = $('#comment').val()
+
+            $.ajax({
+                type: 'GET',
+                url: '/api/comment',
+                data: {},
+                success: function (response) {
+                    let rows = response['orders']
+                    for (let i = 0; i < rows.length; i++) {
+                        let nickname = rows[i]['nickname']
+                        let comment = rows[i]['comment']
+
+                        let temp_html =`<tr>
+                                        <td>${nickname}</td>
+                                        <td>${comment}</td>
+                                        </tr>`
+                        $('#order-box').append(temp_html)
+                    }
+                }
+            });
+        }
+
         function save_comment() {
             $.ajax({
                 type: 'POST',
