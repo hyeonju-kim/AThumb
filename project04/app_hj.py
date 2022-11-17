@@ -1,14 +1,16 @@
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 
 app = Flask(__name__)
+
+import base64
 
 from pymongo import MongoClient
 import certifi
 
 ca=certifi.where()
 
-client = MongoClient("mongodb+srv://coy:sparta@cluster0.apdwkr3.mongodb.net/Cluster0?retryWrites=true&w=majority", tlsCAFile=ca)
-db = client.sparta
+client = MongoClient('mongodb+srv://test:sparta@cluster0.ryuvr6l.mongodb.net/Cluster0?retryWrites=true&w=majority')
+db = client.dbsparta
 
 # JWT 토큰을 만들 때 필요한 비밀문자열입니다. 아무거나 입력해도 괜찮습니다.
 # 이 문자열은 서버만 알고있기 때문에, 내 서버에서만 토큰을 인코딩(=만들기)/디코딩(=풀기) 할 수 있습니다.
@@ -33,23 +35,86 @@ def home():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.user.find_one({"id": payload['id']})
-        return render_template('index.html', nickname=user_info["nick"])
+        user_info = db.athumb.find_one({"id": payload['id']})
+        return render_template('main_hj.html', nickname =user_info["nickname"])
+
     except jwt.ExpiredSignatureError:
-        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+        return render_template('main_hj.html')
     except jwt.exceptions.DecodeError:
-        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
+        return render_template('main_hj.html')
+
+@app.route('/main', methods=["GET"])
+def post_get():
+    post_list = list(db.athumb_list.find({}, {'_id': False}))
+    return jsonify({'post_list':post_list})
 
 
 @app.route('/login')
 def login():
     msg = request.args.get("msg")
-    return render_template('login.html', msg=msg)
-
+    return render_template('login_hj.html', msg=msg)
 
 @app.route('/register')
 def register():
-    return render_template('register.html')
+    return render_template('register_hj.html')
+
+@app.route('/post')
+def post():
+
+    token_receive = request.cookies.get('mytoken')
+
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.athumb.find_one({"id": payload['id']})
+    return render_template('post_hj.html', nickname=user_info["nickname"])
+
+
+@app.route('/api/post', methods=['POST'])
+def posting():
+    image_receive = request.form['image_give']
+    brand_receive = request.form['brand_give']
+    option_receive = request.form['option_give']
+    title_receive = request.form['title_give']
+    star_receive = request.form['star_give']
+    url_receive = request.form['url_give']
+    comment_receive = request.form['comment_give']
+
+    # print(image_receive)
+
+    # image_save = base64.b64encode(open(image_receive,'rb').read())
+
+    doc = {
+        'image':image_receive,
+        'brand':brand_receive,
+        'option':option_receive,
+        'title':title_receive,
+        'star':star_receive,
+        'url':url_receive,
+        'comment':comment_receive
+    }
+    db.athumb_list.insert_one(doc)
+
+    return jsonify({'msg': '작성 완료!'})
+
+@app.route('/comment')
+def comment():
+    token_receive = request.cookies.get('mytoken')
+
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.athumb.find_one({"id": payload['id']})
+    return render_template('like_hj.html', nickname=user_info["nickname"])
+
+@app.route('/api/comment', methods=['POST'] )
+def save_comment():
+    nickname_receive = request.form['nickname_give']
+    comment_give = request.form['comment_give']
+
+    doc = {
+        'nickname' : nickname_receive,
+        'comment' : comment_give
+    }
+    db.athumb_comment.insert_one(doc)
+
+    return jsonify({'msg' : '댓글이 등록되었습니다'})
 
 
 #################################
@@ -61,15 +126,23 @@ def register():
 # 저장하기 전에, pw를 sha256 방법(=단방향 암호화. 풀어볼 수 없음)으로 암호화해서 저장합니다.
 @app.route('/api/register', methods=['POST'])
 def api_register():
+    name_receive = request.form['name_give']
     id_receive = request.form['id_give']
-    pw_receive = request.form['pw_give']
     nickname_receive = request.form['nickname_give']
+    pw_receive = request.form['pw_give']
+    pw2_receive = request.form['pw2_give']
 
-    pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
+    if pw_receive == pw2_receive :
+        pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
-    db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nick': nickname_receive})
+        db.athumb.insert_one({'name': name_receive, 'id': id_receive, 'nickname': nickname_receive, 'pw': pw_hash})
 
-    return jsonify({'result': 'success'})
+        return jsonify({'result': 'success'})
+
+    else :
+        return jsonify({'result': 'fail', 'msg': '비밀번호가 일치하지 않습니다.'})
+
+
 
 
 # [로그인 API]
@@ -83,17 +156,17 @@ def api_login():
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
     # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
-    result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
+    result = db.athumb.find_one({'id': id_receive, 'pw': pw_hash})
 
     # 찾으면 JWT 토큰을 만들어 발급합니다.
     if result is not None:
         # JWT 토큰에는, payload와 시크릿키가 필요합니다.
         # 시크릿키가 있어야 토큰을 디코딩(=풀기) 해서 payload 값을 볼 수 있습니다.
         # 아래에선 id와 exp를 담았습니다. 즉, JWT 토큰을 풀면 유저ID 값을 알 수 있습니다.
-        # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
+        # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
@@ -105,7 +178,7 @@ def api_login():
 
 
 # [유저 정보 확인 API]
-# 로그인된 유저만 call 할 수 있는 API입니다.
+# 로그인된 유저만 call 할 수 있는 API입니다....
 # 유효한 토큰을 줘야 올바른 결과를 얻어갈 수 있습니다.
 # (그렇지 않으면 남의 장바구니라든가, 정보를 누구나 볼 수 있겠죠?)
 @app.route('/api/nick', methods=['GET'])
@@ -119,7 +192,6 @@ def api_valid():
         # token을 시크릿키로 디코딩합니다.
         # 보실 수 있도록 payload를 print 해두었습니다. 우리가 로그인 시 넣은 그 payload와 같은 것이 나옵니다.
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        print(payload)
 
         # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
         # 여기에선 그 예로 닉네임을 보내주겠습니다.
@@ -134,64 +206,3 @@ def api_valid():
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5005, debug=True)
-
-################################# 좋아요 #################################
-
-    @app.route('/api/list', methods=['GET'])
-    def show_stars():
-        movie_stars = list(db.mystar.find({}, {'_id': False}).sort('like', -1))
-        return jsonify({'my_stars': movie_stars})
-
-
-    @app.route('/api/like', methods=['POST'])
-    def like_star():
-        name_receive = request.form['name_give']
-        target_star = db.mystar.find_one({'name': name_receive})
-        current_like = target_star['like']
-
-        new_like = current_like + 1
-
-        db.mystar.update_one({'name': name_receive}, {'$set': {'like': new_like}})
-
-        return jsonify({'msg': '좋아요 완료!'})
-
-
-    @app.route('/api/delete', methods=['POST'])
-    def delete_star():
-        delete_receive = request.form['delete_give']
-
-        db.mystar.delete_one({'name': delete_receive})
-
-        return jsonify({'msg': 'delete 연결되었습니다!'})
-    #########################################################################
-    ################################# 코멘트 #################################
-@app.route('/')
-def home():
-    return render_template('main.html')
-
-
-@app.route("/mars", methods=["POST"])
-def web_mars_post():
-    nickname_receive = request.form['name_give']
-    comment_receive = request.form['address_give']
-
-
-    doc = {
-        'nickname': nickname_receive,
-        'comment': comment_receive,
-
-
-    }
-    db.mars.insert_one(doc)
-
-    return jsonify({'msg': '주문 완료!'})
-
-
-@app.route("/mars", methods=["GET"])
-def web_mars_get():
-    order_list = list(db.mars.find({}, {'_id': False}))
-    return jsonify({'orders':order_list})
-
-
-if __name__ == '__main__':
-    app.run('0.0.0.0', port=5000, debug=True)
