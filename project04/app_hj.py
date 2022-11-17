@@ -67,6 +67,14 @@ def post():
     user_info = db.athumb.find_one({"id": payload['id']})
     return render_template('post_hj.html', nickname=user_info["nickname"])
 
+##showcomment
+@app.route("/api/comment", methods=["GET"])
+def show_comment():
+    order_list = list(db.athumb_comment.find({}, {'_id': False}))
+    print(order_list)
+    return jsonify({'orders':order_list})
+
+####
 
 @app.route('/api/post', methods=['POST'])
 def posting():
