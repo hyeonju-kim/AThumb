@@ -53,7 +53,6 @@
         }
     </style>
     <script>
-
          $(document).ready(function () {
             show_comment();
         });
@@ -72,11 +71,10 @@
                         let nickname = rows[i]['nickname']
                         let comment = rows[i]['comment']
 
-                        let temp_html =
-                    `<tr>
-                    <td>${nickname}</td>
-                    <td>${comment}</td>
-                    </tr>`
+                        let temp_html =`<tr>
+                                        <td>${nickname}</td>
+                                        <td>${comment}</td>
+                                        </tr>`
                         $('#order-box').append(temp_html)
                     }
                 }
@@ -104,7 +102,7 @@
 
     <div class="order">
         <div class="nickname">
-            <span class="input-group-text">{{ nickname }}</span>
+            <span class="input-group-text">{{ nameid }}</span>
         </div>
 
         <div class="input-group mb-3">
@@ -115,16 +113,6 @@
         <button onclick="save_comment()" type="button" class="btn btn-warning mybtn">등록</button>
 
     </div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">닉네임</th>
-            <th scope="col">코멘트</th>
-        </tr>
-        </thead>
-        <tbody id="order-box">
-        </tbody>
-    </table>
 </div>
 </body>
 </html>

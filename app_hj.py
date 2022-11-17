@@ -2,6 +2,8 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 
 app = Flask(__name__)
 
+import base64
+
 from pymongo import MongoClient
 import certifi
 
@@ -41,6 +43,10 @@ def home():
     except jwt.exceptions.DecodeError:
         return render_template('main_hj.html')
 
+@app.route('/main', methods=["GET"])
+def post_get():
+    post_list = list(db.athumb_list.find({}, {'_id': False}))
+    return jsonify({'post_list':post_list})
 
 
 @app.route('/login')
@@ -54,6 +60,7 @@ def register():
 
 @app.route('/post')
 def post():
+
     token_receive = request.cookies.get('mytoken')
 
     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
@@ -69,6 +76,33 @@ def show_comment():
 
 ####
 
+@app.route('/api/post', methods=['POST'])
+def posting():
+    image_receive = request.form['image_give']
+    brand_receive = request.form['brand_give']
+    option_receive = request.form['option_give']
+    title_receive = request.form['title_give']
+    star_receive = request.form['star_give']
+    url_receive = request.form['url_give']
+    comment_receive = request.form['comment_give']
+
+    # print(image_receive)
+
+    # image_save = base64.b64encode(open(image_receive,'rb').read())
+
+    doc = {
+        'image':image_receive,
+        'brand':brand_receive,
+        'option':option_receive,
+        'title':title_receive,
+        'star':star_receive,
+        'url':url_receive,
+        'comment':comment_receive
+    }
+    db.athumb_list.insert_one(doc)
+
+    return jsonify({'msg': '작성 완료!'})
+
 @app.route('/comment')
 def comment():
     token_receive = request.cookies.get('mytoken')
@@ -81,13 +115,11 @@ def comment():
 def save_comment():
     nickname_receive = request.form['nickname_give']
     comment_give = request.form['comment_give']
-    print(nickname_receive)
-    print(comment_give)
+
     doc = {
         'nickname' : nickname_receive,
         'comment' : comment_give
     }
-
     db.athumb_comment.insert_one(doc)
 
     return jsonify({'msg' : '댓글이 등록되었습니다'})
@@ -178,7 +210,6 @@ def api_valid():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
-
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5005, debug=True)

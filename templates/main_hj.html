@@ -138,9 +138,67 @@
             margin-right: 10px;
         }
 
-
     </style>
     <script>
+        $(document).ready(function () {
+            listing();
+        });
+
+        function listing() {
+            $.ajax({
+                type: 'GET',
+                url: '/main',
+                data: {},
+                success: function (response) {
+                    let rows = response['post_list']
+                    for (let i = 0; i < rows.length; i++) {
+                        let image = rows[i]['image']
+                        let brand = rows[i]['brand']
+                        let option = rows[i]['option']
+                        let title = rows[i]['title']
+                        let star = rows[i]['star']
+                        let url = rows[i]['url']
+                        let comment = rows[i]['comment']
+
+                        {#let image_show = atob(image)#}
+
+                        let star_image = '⭐'.repeat(star)
+                        let brand_show = ''
+                            if(brand === '1'){
+                                brand_show = 'Nike';
+                            }else if(brand === '2'){
+                                brand_show = 'Addidas';
+                            }else{
+                                brand_show = 'Fila';
+                            }
+                        let option_show = ''
+                            if(option === '1'){
+                                option_show = '상의';
+                            }else if(option === '2'){
+                                option_show = '하의';
+                            }else{
+                                option_show = '신발';
+                            }
+                        let temp_html = `<div class="col">
+                                            <div class="card h-100">
+                                                <img src="${image}"
+                                                     class="card-img-top">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${title}</h5>
+                                                    <p class="card-text">${brand_show}</p>
+                                                    <p class="card-text">${option_show}</p>
+                                                    <p>${star_image}</p>
+                                                    <p class="card-text">${url}</p>
+                                                    <p class="mycomment">${comment}</p>
+                                                </div>
+                                            </div>
+                                        </div>`
+                        $('#cards-box').append(temp_html)
+                    }
+                }
+            })
+        }
+
         function logout(){
         $.removeCookie('mytoken');
         alert('로그아웃 되었습니다!')
@@ -167,12 +225,10 @@
             <li><a href="/register">회원가입</a></li>
         {% endif %}
         </ul>
-
     </nav>
 </header>
 
 <body>
-<!--<button type="button" class="btn btn-dark" onclick="location.href='post.html'">글 작성</button>-->
 <div class="mytitle">
     <span
         style="
